@@ -5,9 +5,11 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+
   const [token, setToken] = useState(
     localStorage.getItem('sb_token') || null
   );
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,8 +23,9 @@ export const AuthProvider = ({ children }) => {
   const fetchMe = async () => {
     try {
       const { data } = await apiGetMe();
+
       setUser(data.data);
-    } catch {
+    } catch (error) {
       logout();
     } finally {
       setLoading(false);
@@ -31,18 +34,24 @@ export const AuthProvider = ({ children }) => {
 
   const login = (userData, authToken) => {
     localStorage.setItem('sb_token', authToken);
+
     setToken(authToken);
     setUser(userData);
   };
 
   const logout = () => {
     localStorage.removeItem('sb_token');
+
     setToken(null);
     setUser(null);
   };
 
-  const updateUser = (updated) =>
-    setUser((prev) => ({ ...prev, ...updated }));
+  const updateUser = (updated) => {
+    setUser((prev) => ({
+      ...prev,
+      ...updated,
+    }));
+  };
 
   return (
     <AuthContext.Provider
