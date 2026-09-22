@@ -283,13 +283,7 @@ const Login = () => {
             marginTop: 32, padding: '16px 20px', borderRadius: 12,
             background: '#f0faf3', border: '1px solid #d5e8da',
           }}>
-            <p style={{ fontSize: 12, fontWeight: 700, color: '#2d6a4f', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 8 }}>Demo Admin Credentials</p>
-            <p style={{ fontSize: 13, color: '#6b7280', marginBottom: 4 }}>
-              Email: <span style={{ fontWeight: 600, color: '#1a2e24' }}>admin@gmail.com</span>
-            </p>
-            <p style={{ fontSize: 13, color: '#6b7280' }}>
-              Password: <span style={{ fontWeight: 600, color: '#1a2e24' }}>12121212</span>
-            </p>
+            
           </div>
         </div>
       </div>
