@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { apiRegister } from '../../api';
+import { apiRegister, apiDemoLogin } from '../../api';
 import toast from 'react-hot-toast';
-import { UserPlus, Eye, EyeOff, CheckCircle, ArrowRight, GraduationCap, Users, Briefcase } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight, GraduationCap, Users, Briefcase, Award, ShieldCheck, Sparkles, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const roles = [
@@ -15,8 +15,24 @@ const Register = () => {
   const [form, setForm] = useState({ name: '', email: '', password: '', role: 'student' });
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [demoLoadingRole, setDemoLoadingRole] = useState(null);
   const navigate = useNavigate();
   const { login } = useAuth();
+
+  const handleDemoLogin = async (role) => {
+    setDemoLoadingRole(role);
+    try {
+      const { data } = await apiDemoLogin(role);
+      login(data.data, data.token);
+      toast.success(`Welcome, ${data.data.name}! 👋 (Demo Mode)`);
+      const redirects = { student: '/student/dashboard', mentor: '/mentor/dashboard', admin: '/admin/dashboard', employer: '/employer/dashboard' };
+      navigate(redirects[data.data.role] || '/');
+    } catch (err) {
+      toast.error(err.response?.data?.message || `Failed to sign in as ${role} demo`);
+    } finally {
+      setDemoLoadingRole(null);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -220,6 +236,81 @@ const Register = () => {
               )}
             </button>
           </form>
+
+          {/* 1-Click Demo Access Panel */}
+          <div style={{
+            marginTop: 28, padding: '20px', borderRadius: 16,
+            background: 'linear-gradient(135deg, #f8fafc, #f0fdf4)',
+            border: '1px solid #d1fae5',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Sparkles size={16} color="#059669" />
+                <span style={{ fontSize: 13, fontWeight: 800, color: '#065f46', letterSpacing: '-0.2px' }}>
+                  Quick Demo Access (1-Click)
+                </span>
+              </div>
+              <span style={{ fontSize: 10, fontWeight: 700, color: '#047857', background: '#d1fae5', padding: '2px 8px', borderRadius: 20 }}>
+                PORTFOLIO READY
+              </span>
+            </div>
+            <p style={{ fontSize: 12, color: '#4b5563', marginBottom: 14, lineHeight: 1.4 }}>
+              Recruiter or reviewer? Test any pre-configured role instantly without creating an account:
+            </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              {[
+                { role: 'student', label: 'Student Demo', icon: GraduationCap, color: '#2563eb', bg: '#eff6ff', desc: 'Courses, Quizzes & ATS' },
+                { role: 'mentor', label: 'Mentor Demo', icon: Award, color: '#059669', bg: '#f0fdf4', desc: 'Curriculum & Approvals' },
+                { role: 'employer', label: 'Employer Demo', icon: Briefcase, color: '#d97706', bg: '#fffbeb', desc: 'Job Postings & Hiring' },
+                { role: 'admin', label: 'Admin Demo', icon: ShieldCheck, color: '#7c3aed', bg: '#faf5ff', desc: 'Governance & Audits' },
+              ].map(({ role, label, icon: RoleIcon, color, bg, desc }) => {
+                const isLoading = demoLoadingRole === role;
+                return (
+                  <button
+                    key={role}
+                    type="button"
+                    disabled={loading || demoLoadingRole !== null}
+                    onClick={() => handleDemoLogin(role)}
+                    style={{
+                      background: bg,
+                      border: `1.5px solid ${color}30`,
+                      borderRadius: 12,
+                      padding: '10px 12px',
+                      textAlign: 'left',
+                      cursor: loading || demoLoadingRole !== null ? 'not-allowed' : 'pointer',
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 4,
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!demoLoadingRole && !loading) {
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                        e.currentTarget.style.borderColor = color;
+                        e.currentTarget.style.boxShadow = `0 6px 16px ${color}20`;
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateY(0)';
+                      e.currentTarget.style.borderColor = `${color}30`;
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <RoleIcon size={16} color={color} />
+                        <span style={{ fontSize: 12, fontWeight: 700, color: '#1e293b' }}>{label}</span>
+                      </div>
+                      {isLoading && <Loader2 size={13} className="animate-spin" color={color} />}
+                    </div>
+                    <span style={{ fontSize: 10, color: '#64748b', fontWeight: 500 }}>{desc}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
 

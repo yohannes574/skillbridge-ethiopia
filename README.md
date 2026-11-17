@@ -16,14 +16,14 @@ A full-stack, enterprise-grade EdTech and Talent Pipeline ecosystem connecting h
 
 ## ⚡ 1-Click Demo Login (Instant Reviewer Access)
 
-For portfolio reviewers, recruiters, and hiring managers: No manual registration or password entry is required. On the `/login` page, click any of the **Quick Demo Access** buttons:
+For portfolio reviewers, recruiters, and hiring managers: No manual registration or password entry is required. On both the `/login` and `/register` pages, click any of the **Quick Demo Access** buttons:
 
 | Demo Role | Focus Features | Quick Access |
 |---|---|---|
-| **🎓 Student** | Course learning, interactive quizzes, verifiable certificates, job applications | 1-Click Button on `/login` |
-| **👨‍🏫 Mentor** | Curriculum builder, review student requests, schedule 1-on-1 video sessions | 1-Click Button on `/login` |
-| **🏢 Employer** | Search certified student directory, post jobs, manage multi-stage ATS | 1-Click Button on `/login` |
-| **🛡️ Admin** | User governance, approval queues, course moderation, audit reports | 1-Click Button on `/login` |
+| **🎓 Student** | Course learning, interactive quizzes, verifiable certificates, job applications | 1-Click Button on `/login` & `/register` |
+| **👨‍🏫 Mentor** | Curriculum builder, review student requests, schedule 1-on-1 video sessions | 1-Click Button on `/login` & `/register` |
+| **🏢 Employer** | Search certified student directory, post jobs, manage multi-stage ATS | 1-Click Button on `/login` & `/register` |
+| **🛡️ Admin** | User governance, approval queues, course moderation, audit reports | 1-Click Button on `/login` & `/register` |
 
 ---
 
