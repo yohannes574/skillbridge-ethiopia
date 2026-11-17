@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import PageHeader from '../../components/PageHeader';
-import { apiGetCertifiedStudents } from '../../api';
+import { apiGetCertifiedStudents, API_BASE_URL } from '../../api';
 import { Award, Search, ExternalLink, BadgeCheck, X, User, Mail, BookOpen, Quote } from 'lucide-react';
 
 const StudentDirectory = () => {

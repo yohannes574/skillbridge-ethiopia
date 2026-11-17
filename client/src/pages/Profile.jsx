@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
 import PageHeader from '../components/PageHeader';
 import { useAuth } from '../context/AuthContext';
-import { apiGetMyBadges, apiGetMyCertificates, apiGetEnrolledCourses, apiUpdateProfile } from '../api';
+import { apiGetMyBadges, apiGetMyCertificates, apiGetEnrolledCourses, apiUpdateProfile, API_BASE_URL } from '../api';
 import { User, Mail, Award, BookOpen, Star, Loader2, Link as LinkIcon, CheckCircle, Code, Globe, Activity, ArrowRight, Edit3, ShieldCheck, Briefcase, X, Save } from 'lucide-react';
 import { Link } from 'react-router-dom';
 

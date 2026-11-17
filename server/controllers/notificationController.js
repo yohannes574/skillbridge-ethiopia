@@ -1,9 +1,13 @@
 const Notification = require('../models/Notification');
+const { emitToUser } = require('../socket');
 
 // Create a notification (called internally by other controllers)
 const createNotification = async ({ userId, type, title, message, link = '', metadata = {} }) => {
   try {
-    await Notification.create({ userId, type, title, message, link, metadata });
+    const notification = await Notification.create({ userId, type, title, message, link, metadata });
+    // Real-time notification dispatch
+    emitToUser(userId.toString(), 'receive_notification', notification);
+    return notification;
   } catch (err) {
     console.error('Notification creation failed:', err.message);
   }

@@ -10,7 +10,7 @@ import { Clock, RefreshCw, AlertTriangle } from 'lucide-react';
  *  - rejected       → show rejection reason + allow resubmission
  */
 const PendingApprovalBanner = ({ role }) => {
-  const { user, updateUser } = useAuth();
+  const { user } = useAuth();
   const status = user?.submissionStatus || 'not_submitted';
 
   // ─── NOT_SUBMITTED: Show the onboarding form ─────────────────────

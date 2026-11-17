@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
-import { useNavigate } from 'react-router-dom';
 import { apiGetContacts, apiGetConversation, apiSendMessage } from '../../api';
 import { useAuth } from '../../context/AuthContext';
+import socket from '../../socket';
 import toast from 'react-hot-toast';
 import { Send, MessageCircle, Paperclip, Smile, Search, CheckCheck, ChevronLeft, Mic } from 'lucide-react';
 
@@ -15,7 +15,6 @@ const EmployerMessages = () => {
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef(null);
-  const navigate = useNavigate();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
@@ -37,9 +36,41 @@ const EmployerMessages = () => {
   useEffect(() => {
     if (activeContact) {
       loadMessages();
-      const interval = setInterval(() => loadMessages(true), 3000);
+      const interval = setInterval(() => loadMessages(true), 30000); // 30s background sync
       return () => clearInterval(interval);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeContact]);
+
+  useEffect(() => {
+    const handleIncoming = (msg) => {
+      const activeId = activeContact?.user?._id;
+      const senderId = msg.senderId?._id || msg.senderId;
+      const receiverId = msg.receiverId?._id || msg.receiverId;
+
+      if (activeId && (senderId === activeId || receiverId === activeId)) {
+        setMessages((prev) => {
+          if (prev.some((m) => m._id === msg._id)) return prev;
+          return [...prev, msg];
+        });
+      }
+
+      setContacts((prev) =>
+        prev.map((c) => {
+          if (c.user._id === senderId || c.user._id === receiverId) {
+            return { ...c, lastMessage: msg };
+          }
+          return c;
+        })
+      );
+    };
+
+    socket.on('receive_message', handleIncoming);
+    socket.on('message_sent', handleIncoming);
+    return () => {
+      socket.off('receive_message', handleIncoming);
+      socket.off('message_sent', handleIncoming);
+    };
   }, [activeContact]);
 
   useEffect(() => {

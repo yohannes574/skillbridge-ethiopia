@@ -4,6 +4,9 @@ const cors = require('cors');
 const morgan = require('morgan');
 const connectDB = require('./config/db');
 
+const http = require('http');
+const { initSocket } = require('./socket');
+
 // Route imports
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -24,7 +27,9 @@ const uploadRoutes = require('./routes/uploadRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 
 // Connect Database
-connectDB();
+if (process.env.NODE_ENV !== 'test') {
+  connectDB();
+}
 
 const app = express();
 
@@ -79,9 +84,14 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
-});
+const server = http.createServer(app);
+initSocket(server);
 
-module.exports = app;
+if (process.env.NODE_ENV !== 'test') {
+  server.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
+  });
+}
+
+module.exports = { app, server };

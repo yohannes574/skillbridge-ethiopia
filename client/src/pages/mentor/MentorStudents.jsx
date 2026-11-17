@@ -26,7 +26,9 @@ const MentorStudents = () => {
       try {
         const pRes = await apiGetStudentsProgress();
         setStudentProgress(pRes.data.data || []);
-      } catch {}
+      } catch (err) {
+        console.warn('Could not load student progress', err);
+      }
     } catch { toast.error('Failed to load'); }
     finally { setLoading(false); }
   };

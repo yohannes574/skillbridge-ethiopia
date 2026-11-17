@@ -3,6 +3,9 @@ node_modules
 dist
 build
 .DS_Store
+skillbridge-backup/
+check_messages.js
+check_messages_2.js
 
 # User-uploaded files
 server/uploads/*

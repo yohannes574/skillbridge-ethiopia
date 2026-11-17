@@ -1,6 +1,7 @@
 const Message = require('../models/Message');
 const Enrollment = require('../models/Enrollment');
 const JobApplication = require('../models/JobApplication');
+const { emitToUser } = require('../socket');
 
 // @desc   Send a message
 const sendMessage = async (req, res) => {
@@ -8,6 +9,11 @@ const sendMessage = async (req, res) => {
     const { receiverId, text } = req.body;
     const message = await Message.create({ senderId: req.user._id, receiverId, text });
     await message.populate('senderId', 'name avatar');
+    
+    // Real-time Socket.io dispatch
+    emitToUser(receiverId.toString(), 'receive_message', message);
+    emitToUser(req.user._id.toString(), 'message_sent', message);
+
     res.status(201).json({ success: true, data: message });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

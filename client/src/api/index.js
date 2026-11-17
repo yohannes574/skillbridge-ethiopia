@@ -17,6 +17,7 @@ API.interceptors.request.use((config) => {
 // ───────── Auth ─────────
 export const apiRegister = (data) => API.post('/auth/register', data);
 export const apiLogin = (data) => API.post('/auth/login', data);
+export const apiDemoLogin = (role) => API.post('/auth/demo-login', { role });
 export const apiLoginWithGoogle = (data) => API.post('/auth/google', data);
 export const apiForgotPassword = (data) => API.post('/auth/forgot-password', data);
 export const apiResetPassword = (data) => API.post('/auth/reset-password', data);

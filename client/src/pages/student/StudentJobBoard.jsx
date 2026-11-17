@@ -82,7 +82,7 @@ const StudentJobBoard = () => {
           app._id === application._id ? { ...app, stageTracking: updatedStageTracking } : app
         )));
       }
-    } catch (error) {
+    } catch {
       toast.error('Could not record interview join status');
     } finally {
       navigate(`/interview/${application.stageTracking?.interviewRoomId}`);
@@ -98,7 +98,7 @@ const StudentJobBoard = () => {
 
       const appliedIds = appsRes.data.data.map(app => app.jobId?._id);
       setAppliedJobs(new Set(appliedIds));
-    } catch (error) {
+    } catch {
       toast.error('Failed to load job board data');
     } finally {
       setLoading(false);
@@ -512,7 +512,7 @@ const StudentJobBoard = () => {
               <form onSubmit={handleApply} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                 
                 <div>
-                  <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                     <FileText size={16} /> Cover Letter <span style={{ color: '#94a3b8', fontWeight: 500 }}>(Optional)</span>
                   </label>
                   <textarea 
@@ -526,7 +526,7 @@ const StudentJobBoard = () => {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                   <div>
-                     <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                     <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                       <Code size={16} /> GitHub URL
                     </label>
                     <input 
@@ -538,7 +538,7 @@ const StudentJobBoard = () => {
                     />
                   </div>
                   <div>
-                     <label style={{ display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                     <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                       <LinkIcon size={16} /> Portfolio URL
                     </label>
                     <input 

@@ -79,7 +79,7 @@ const EmployerRequests = () => {
           item._id === app._id ? { ...item, stageTracking: updatedStageTracking } : item
         )));
       }
-    } catch (error) {
+    } catch {
       toast.error('Could not record interview join status');
     } finally {
       navigate(`/interview/${app.stageTracking?.interviewRoomId}`);
@@ -90,7 +90,7 @@ const EmployerRequests = () => {
     try {
       const res = await apiGetJobApplications();
       setApplications(res.data.data || []);
-    } catch (error) {
+    } catch {
       toast.error('Failed to load applications');
     } finally {
       setLoading(false);
@@ -109,7 +109,7 @@ const EmployerRequests = () => {
 
   const advanceStage = async (id, status, trackingPayload = null) => {
     try {
-      const res = await apiAdvanceApplicationStage(id, { status, trackingPayload });
+      await apiAdvanceApplicationStage(id, { status, trackingPayload });
       toast.success(`Application advanced to ${status.replace('_', ' ')}!`);
       // Update local state
       setApplications(prev => prev.map(app => (app._id === id ? { ...app, status, stageTracking: { ...app.stageTracking, ...trackingPayload } } : app)));

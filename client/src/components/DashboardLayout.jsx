@@ -3,6 +3,8 @@ import Sidebar from './Sidebar';
 import { Bell, Search, BookOpen, Award, Package, X, CheckCheck, AlertTriangle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import socket from '../socket';
+import toast from 'react-hot-toast';
 import { apiGetNotifications, apiGetUnreadCount, apiMarkNotificationRead, apiMarkAllNotificationsRead, apiGetUnread, apiGetJobApplications, apiGetStudentApplications } from '../api';
 
 const typeIcon = {
@@ -171,62 +173,102 @@ const DashboardLayout = ({ children }) => {
     );
   };
 
-  const fetchLiveInterviewAlerts = async () => {
-    try {
-      if (!user?.role || !['student', 'employer'].includes(user.role)) {
+  const fetchLiveInterviewAlerts = () => {
+    if (!user?.role || !['student', 'employer'].includes(user.role)) return;
+
+    const request = user.role === 'employer'
+      ? apiGetJobApplications()
+      : apiGetStudentApplications();
+
+    request
+      .then((response) => {
+        const applications = response?.data?.data || [];
+        const nowMs = Date.now();
+        const roleJoinField = user.role === 'employer' ? 'employerJoinedAt' : 'studentJoinedAt';
+
+        const liveAlerts = applications
+          .filter((app) => app.status === 'interview_scheduled' && app.stageTracking)
+          .map((app) => {
+            const start = getInterviewStartDateTime(app.stageTracking);
+            if (!start) return null;
+
+            const startMs = start.getTime();
+            const endMs = startMs + 3 * 60 * 1000;
+            const hasJoined = !!app.stageTracking?.[roleJoinField];
+            if (hasJoined || nowMs < startMs || nowMs > endMs) return null;
+
+            const counterpartName = user.role === 'employer'
+              ? (app.studentId?.name || 'candidate')
+              : (app.employerId?.name || 'employer');
+
+            return {
+              applicationId: app._id,
+              message: `Interview with ${counterpartName} is live now. Join within 3 minutes.`,
+              link: user.role === 'employer' ? '/employer/requests' : '/student/jobs',
+            };
+          })
+          .filter(Boolean);
+
+        setLiveInterviewAlerts(liveAlerts);
+      })
+      .catch(() => {
         setLiveInterviewAlerts([]);
-        return;
-      }
-
-      const response = user.role === 'employer'
-        ? await apiGetJobApplications()
-        : await apiGetStudentApplications();
-
-      const applications = response?.data?.data || [];
-      const nowMs = Date.now();
-      const roleJoinField = user.role === 'employer' ? 'employerJoinedAt' : 'studentJoinedAt';
-
-      const liveAlerts = applications
-        .filter((app) => app.status === 'interview_scheduled' && app.stageTracking)
-        .map((app) => {
-          const start = getInterviewStartDateTime(app.stageTracking);
-          if (!start) return null;
-
-          const startMs = start.getTime();
-          const endMs = startMs + 3 * 60 * 1000;
-          const hasJoined = !!app.stageTracking?.[roleJoinField];
-          if (hasJoined || nowMs < startMs || nowMs > endMs) return null;
-
-          const counterpartName = user.role === 'employer'
-            ? (app.studentId?.name || 'candidate')
-            : (app.employerId?.name || 'employer');
-
-          return {
-            applicationId: app._id,
-            message: `Interview with ${counterpartName} is live now. Join within 3 minutes.`,
-            link: user.role === 'employer' ? '/employer/requests' : '/student/jobs',
-          };
-        })
-        .filter(Boolean);
-
-      setLiveInterviewAlerts(liveAlerts);
-    } catch {
-      setLiveInterviewAlerts([]);
-    }
+      });
   };
 
   useEffect(() => {
     fetchUnread();
-    fetchLiveInterviewAlerts();
+    if (user?.role && ['student', 'employer'].includes(user.role)) {
+      fetchLiveInterviewAlerts();
+    }
     const interval = setInterval(fetchUnread, 30000); // poll every 30s
-    const interviewAlertInterval = setInterval(fetchLiveInterviewAlerts, 15000);
+    const interviewAlertInterval = setInterval(() => {
+      if (user?.role && ['student', 'employer'].includes(user.role)) {
+        fetchLiveInterviewAlerts();
+      }
+    }, 15000);
     const bannerTimer = setTimeout(() => setShowBanner(false), 8000); // 8 seconds
     return () => {
       clearInterval(interval);
       clearInterval(interviewAlertInterval);
       clearTimeout(bannerTimer);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.role]);
+
+  // Real-time socket listeners for live notifications and messages
+  useEffect(() => {
+    const onNotif = (notif) => {
+      setUnreadCount((prev) => prev + 1);
+      toast(
+        (t) => (
+          <div
+            onClick={() => {
+              toast.dismiss(t.id);
+              if (notif.link) navigate(notif.link);
+            }}
+            style={{ cursor: 'pointer', textAlign: 'left' }}
+          >
+            <p style={{ fontWeight: 800, fontSize: 13, margin: '0 0 2px 0', color: '#f8fafc' }}>{notif.title}</p>
+            <p style={{ fontSize: 11, margin: 0, color: '#94a3b8' }}>{notif.message}</p>
+          </div>
+        ),
+        { icon: '🔔', duration: 4000 }
+      );
+    };
+
+    const onMessage = () => {
+      setUnreadMessageCount((prev) => prev + 1);
+    };
+
+    socket.on('receive_notification', onNotif);
+    socket.on('receive_message', onMessage);
+
+    return () => {
+      socket.off('receive_notification', onNotif);
+      socket.off('receive_message', onMessage);
+    };
+  }, [navigate]);
 
   // Close panel when clicking outside
   useEffect(() => {

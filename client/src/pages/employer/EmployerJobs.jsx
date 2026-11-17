@@ -24,7 +24,7 @@ const EmployerJobs = () => {
     try {
       const res = await apiGetEmployerJobs();
       setJobs(res.data.data || []);
-    } catch (error) {
+    } catch {
       toast.error('Failed to load jobs');
     } finally {
       setLoading(false);

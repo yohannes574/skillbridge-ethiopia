@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { apiGetMe } from '../api';
+import socket from '../socket';
 
 const AuthContext = createContext(null);
 
@@ -18,14 +19,24 @@ export const AuthProvider = ({ children }) => {
     } else {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
+
+  useEffect(() => {
+    if (user?._id) {
+      if (!socket.connected) socket.connect();
+      socket.emit('join_user', user._id);
+    } else {
+      if (socket.connected) socket.disconnect();
+    }
+  }, [user?._id]);
 
   const fetchMe = async () => {
     try {
       const { data } = await apiGetMe();
 
       setUser(data.data);
-    } catch (error) {
+    } catch {
       logout();
     } finally {
       setLoading(false);

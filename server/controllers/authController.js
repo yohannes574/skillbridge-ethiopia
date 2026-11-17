@@ -313,4 +313,88 @@ const resetPassword = async (req, res) => {
   }
 };
 
-module.exports = { register, login, googleLogin, getMe, updateProfile, forgotPassword, resetPassword };
+// @desc    1-Click Demo Login for portfolio reviewers & recruiters
+// @route   POST /api/auth/demo-login
+const demoLogin = async (req, res) => {
+  try {
+    const { role } = req.body;
+    const allowedRoles = ['student', 'mentor', 'employer', 'admin'];
+    if (!allowedRoles.includes(role)) {
+      return res.status(400).json({ success: false, message: 'Invalid demo role requested' });
+    }
+
+    const demoProfiles = {
+      student: {
+        email: 'student@skillbridge.et',
+        name: 'Abebe Bikila (Student Demo)',
+        bio: 'Full-stack software engineering student eager to learn modern cloud & web architecture.',
+        skills: ['React', 'Node.js', 'MongoDB', 'JavaScript'],
+        experienceLevel: 'Beginner',
+        isApproved: true,
+        submissionStatus: 'approved',
+      },
+      mentor: {
+        email: 'mentor@skillbridge.et',
+        name: 'Dr. Michael Bekele (Mentor Demo)',
+        bio: 'Senior Software Architect & Mentor with 10+ years experience in distributed systems.',
+        skills: ['Node.js', 'System Design', 'React', 'Cloud Architecture', 'Python'],
+        experienceLevel: 'Advanced',
+        yearsOfExperience: 10,
+        isApproved: true,
+        submissionStatus: 'approved',
+      },
+      employer: {
+        email: 'employer@skillbridge.et',
+        name: 'TechBridge Ethiopia (Employer Demo)',
+        bio: 'Leading tech enterprise hiring junior and senior engineers across East Africa.',
+        skills: ['Talent Acquisition', 'Engineering Hiring', 'Tech Apprenticeship'],
+        isApproved: true,
+        submissionStatus: 'approved',
+      },
+      admin: {
+        email: 'admin@skillbridge.et',
+        name: 'Platform Administrator (Admin Demo)',
+        bio: 'Skill Bridge Ethiopia Platform Administrator with system governance access.',
+        skills: ['Platform Governance', 'Audit', 'System Administration'],
+        isApproved: true,
+        submissionStatus: 'approved',
+      },
+    };
+
+    const target = demoProfiles[role];
+    let user = await User.findOne({ email: target.email });
+
+    if (!user) {
+      user = await User.create({
+        name: target.name,
+        email: target.email,
+        password: 'DemoPassword@123',
+        role,
+        isApproved: true,
+        submissionStatus: 'approved',
+        bio: target.bio,
+        skills: target.skills,
+        experienceLevel: target.experienceLevel || 'Beginner',
+        yearsOfExperience: target.yearsOfExperience || 0,
+      });
+    } else {
+      let needsSave = false;
+      if (!user.isApproved) { user.isApproved = true; needsSave = true; }
+      if (user.isBlocked) { user.isBlocked = false; needsSave = true; }
+      if (user.role !== role) { user.role = role; needsSave = true; }
+      if (user.submissionStatus !== 'approved') { user.submissionStatus = 'approved'; needsSave = true; }
+      if (needsSave) await user.save();
+    }
+
+    res.json({
+      success: true,
+      message: `Signed in as Demo ${role.charAt(0).toUpperCase() + role.slice(1)}! 🚀`,
+      token: generateToken(user._id),
+      data: buildAuthPayload(user),
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+module.exports = { register, login, demoLogin, googleLogin, getMe, updateProfile, forgotPassword, resetPassword };

@@ -316,7 +316,7 @@ export const MentorOnboardingForm = () => {
 // EMPLOYER ONBOARDING FORM
 // ═══════════════════════════════════════════════════════════════════
 export const EmployerOnboardingForm = () => {
-  const { user, updateUser } = useAuth();
+  const { updateUser } = useAuth();
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({

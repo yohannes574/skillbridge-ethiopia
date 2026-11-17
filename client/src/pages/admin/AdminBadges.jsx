@@ -21,7 +21,9 @@ const AdminBadges = () => {
     try {
       const res = await apiGetBadges();
       setBadges(res.data.data || []);
-    } catch { }
+    } catch {
+      toast.error('Failed to load badges');
+    }
     finally { setLoading(false); }
   };
 

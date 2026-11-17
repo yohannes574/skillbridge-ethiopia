@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import DashboardLayout from '../../components/DashboardLayout';
 import PageHeader from '../../components/PageHeader';
-import { apiGetMyCertificates, apiGetCertRequests, apiGetEnrolledCourses, apiRequestCertificate } from '../../api';
+import { apiGetMyCertificates, apiGetCertRequests, apiGetEnrolledCourses, apiRequestCertificate, API_BASE_URL } from '../../api';
 import { Award, ExternalLink, Clock, CheckCircle, XCircle, Plus, BookOpen, X, PlayCircle, Star, Users, Briefcase } from 'lucide-react';
 import toast from 'react-hot-toast';
 

@@ -42,7 +42,7 @@ const HBarChart = ({ data, maxVal }) => {
           </div>
           <div style={{ height: 8, borderRadius: 8, background: '#f3f4f6', overflow: 'hidden' }}>
             <div style={{
-              width: `${Math.min(d.value, 100)}%`, height: '100%', borderRadius: 8,
+              width: `${Math.min((d.value / m) * 100, 100)}%`, height: '100%', borderRadius: 8,
               background: `linear-gradient(90deg, ${d.color || '#2d6a4f'}, ${d.color || '#52b788'})`,
               transition: 'width 1s cubic-bezier(0.34, 1.56, 0.64, 1)',
             }} />

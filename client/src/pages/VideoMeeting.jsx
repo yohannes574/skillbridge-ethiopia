@@ -46,7 +46,7 @@ const VideoMeeting = () => {
             displayName: user.name,
             email: user.email,
           }}
-          onApiReady={(externalApi) => {
+          onApiReady={() => {
             // Optional external API controls
             console.log('Jitsi Meet External API attached');
           }}
